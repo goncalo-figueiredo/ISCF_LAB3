@@ -1,5 +1,5 @@
 # 1. Usar uma imagem base oficial e leve do Python
-FROM python:3.12-slim
+FROM python:3.10-slim
 
 # 2. Definir a pasta de trabalho dentro do contentor
 WORKDIR /app
