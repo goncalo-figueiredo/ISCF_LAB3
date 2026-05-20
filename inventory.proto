@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package inventory;
+
+// Enumeração com as ações de ajuste de inventário
+enum InventoryAction {
+    NO_ACTION = 0;    // Em gRPC, o primeiro valor de um enum deve ser sempre 0 (default)
+    SCALE_UP = 1;
+    SCALE_DOWN = 2;
+    REORDER = 3;
+}
+
+// Mensagem do Pedido (Request) enviado pelo Cliente
+message InventoryRequest {
+    string item_id = 1;
+    int32 current_stock = 2;
+    int32 predicted_demand = 3;
+    int32 reorder_level = 4;
+    
+    // Campos opcionais introduzidos na Parte 2 do enunciado
+    optional int32 safety_stock = 5;
+    optional int32 supplier_lead_time = 6;
+}
+
+// Mensagem de Resposta (Response) enviada pelo Servidor
+message InventoryResponse {
+    string item_id = 1;
+    int32 reorder_quantity = 2;
+    InventoryAction action = 3;
+    string explanation = 4;
+}
+
+// Definição do Serviço
+service InventoryOptimization {
+    // Um RPC (Remote Procedure Call) simples
+    rpc OptimizeInventory (InventoryRequest) returns (InventoryResponse);
+}
