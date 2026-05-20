@@ -13,21 +13,21 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0finventory.proto\x12\tinventory\"\xcf\x01\n\x10InventoryRequest\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x15\n\rcurrent_stock\x18\x02 \x01(\x05\x12\x18\n\x10predicted_demand\x18\x03 \x01(\x05\x12\x15\n\rreorder_level\x18\x04 \x01(\x05\x12\x19\n\x0csafety_stock\x18\x05 \x01(\x05H\x00\x88\x01\x01\x12\x1f\n\x12supplier_lead_time\x18\x06 \x01(\x05H\x01\x88\x01\x01\x42\x0f\n\r_safety_stockB\x15\n\x13_supplier_lead_time\"E\n\x14\x42ulkInventoryRequest\x12-\n\x08requests\x18\x01 \x03(\x0b\x32\x1b.inventory.InventoryRequest\"\x7f\n\x11InventoryResponse\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x18\n\x10reorder_quantity\x18\x02 \x01(\x05\x12*\n\x06\x61\x63tion\x18\x03 \x01(\x0e\x32\x1a.inventory.InventoryAction\x12\x13\n\x0b\x65xplanation\x18\x04 \x01(\t*K\n\x0fInventoryAction\x12\r\n\tNO_ACTION\x10\x00\x12\x0c\n\x08SCALE_UP\x10\x01\x12\x0e\n\nSCALE_DOWN\x10\x02\x12\x0b\n\x07REORDER\x10\x03\x32\xc3\x01\n\x15InventoryOptimization\x12N\n\x11OptimizeInventory\x12\x1b.inventory.InventoryRequest\x1a\x1c.inventory.InventoryResponse\x12Z\n\x17StreamOptimizeInventory\x12\x1f.inventory.BulkInventoryRequest\x1a\x1c.inventory.InventoryResponse0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0finventory.proto\x12\tinventory\"\xcf\x01\n\x10InventoryRequest\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x15\n\rcurrent_stock\x18\x02 \x01(\x05\x12\x18\n\x10predicted_demand\x18\x03 \x01(\x05\x12\x15\n\rreorder_level\x18\x04 \x01(\x05\x12\x19\n\x0csafety_stock\x18\x05 \x01(\x05H\x00\x88\x01\x01\x12\x1f\n\x12supplier_lead_time\x18\x06 \x01(\x05H\x01\x88\x01\x01\x42\x0f\n\r_safety_stockB\x15\n\x13_supplier_lead_time\"E\n\x14\x42ulkInventoryRequest\x12-\n\x08requests\x18\x01 \x03(\x0b\x32\x1b.inventory.InventoryRequest\"\x99\x01\n\x11InventoryResponse\x12\x0f\n\x07item_id\x18\x01 \x01(\t\x12\x18\n\x10reorder_quantity\x18\x02 \x01(\x05\x12*\n\x06\x61\x63tion\x18\x03 \x01(\x0e\x32\x1a.inventory.InventoryAction\x12\x13\n\x0b\x65xplanation\x18\x04 \x01(\t\x12\x18\n\x10predicted_demand\x18\x05 \x01(\x05*K\n\x0fInventoryAction\x12\r\n\tNO_ACTION\x10\x00\x12\x0c\n\x08SCALE_UP\x10\x01\x12\x0e\n\nSCALE_DOWN\x10\x02\x12\x0b\n\x07REORDER\x10\x03\x32\xc3\x01\n\x15InventoryOptimization\x12N\n\x11OptimizeInventory\x12\x1b.inventory.InventoryRequest\x1a\x1c.inventory.InventoryResponse\x12Z\n\x17StreamOptimizeInventory\x12\x1f.inventory.BulkInventoryRequest\x1a\x1c.inventory.InventoryResponse0\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'inventory_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _INVENTORYACTION._serialized_start=440
-  _INVENTORYACTION._serialized_end=515
+  _INVENTORYACTION._serialized_start=467
+  _INVENTORYACTION._serialized_end=542
   _INVENTORYREQUEST._serialized_start=31
   _INVENTORYREQUEST._serialized_end=238
   _BULKINVENTORYREQUEST._serialized_start=240
   _BULKINVENTORYREQUEST._serialized_end=309
-  _INVENTORYRESPONSE._serialized_start=311
-  _INVENTORYRESPONSE._serialized_end=438
-  _INVENTORYOPTIMIZATION._serialized_start=518
-  _INVENTORYOPTIMIZATION._serialized_end=713
+  _INVENTORYRESPONSE._serialized_start=312
+  _INVENTORYRESPONSE._serialized_end=465
+  _INVENTORYOPTIMIZATION._serialized_start=545
+  _INVENTORYOPTIMIZATION._serialized_end=740
 # @@protoc_insertion_point(module_scope)

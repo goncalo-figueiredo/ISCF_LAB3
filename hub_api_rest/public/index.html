@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Otimização de Inventário</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; background-color: #f4f6f9; color: #333; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1, h2 { color: #0056b3; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .table-input { width: 80px !important; padding: 4px !important; text-align: center; }
+        button { background-color: #0056b3; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #004085; }
+        .result-box { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-left: 5px solid #0056b3; border-radius: 4px; display: none; white-space: pre-wrap; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #0056b3; color: white; }
+        .btn-bulk { background-color: #28a745; }
+        .btn-bulk:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Dashboard de Gestão de Inventário</h1>
+    <p>Interface conectada ao Hub REST (Node.js), Previsão (Java) e Otimização (Python Docker).</p>
+    
+    <hr>
+
+    <h2>1. Análise de Item Único</h2>
+    <div class="form-group">
+        <label>ID do Item:</label>
+        <input type="text" id="single-id" value="PROD-100">
+    </div>
+    <div class="form-group">
+        <label>Stock Atual:</label>
+        <input type="number" id="single-stock" value="12">
+    </div>
+    <div class="form-group">
+        <label>Nível de Reordenação:</label>
+        <input type="number" id="single-level" value="25">
+    </div>
+    <button onclick="analyzeSingle()">Analisar Item</button>
+
+    <div id="single-result" class="result-box"></div>
+
+    <hr style="margin-top: 40px;">
+
+    <h2>2. Análise em Lote (Server Streaming)</h2>
+    <p>Edita os valores do stock e limites diretamente na tabela abaixo e dispara o fluxo gRPC Stream.</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Item ID</th>
+                <th>Stock Atual</th>
+                <th>Nível de Reordenação</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>PROD-ALFA</strong> <input type="hidden" id="bulk-id-0" value="PROD-ALFA"></td>
+                <td><input type="number" id="bulk-stock-0" class="table-input" value="4"></td>
+                <td><input type="number" id="bulk-level-0" class="table-input" value="20"></td>
+            </tr>
+            <tr>
+                <td><strong>PROD-BETA</strong> <input type="hidden" id="bulk-id-1" value="PROD-BETA"></td>
+                <td><input type="number" id="bulk-stock-1" class="table-input" value="45"></td>
+                <td><input type="number" id="bulk-level-1" class="table-input" value="15"></td>
+            </tr>
+            <tr>
+                <td><strong>PROD-GAMA</strong> <input type="hidden" id="bulk-id-2" value="PROD-GAMA"></td>
+                <td><input type="number" id="bulk-stock-2" class="table-input" value="2"></td>
+                <td><input type="number" id="bulk-level-2" class="table-input" value="10"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button class="btn-bulk" onclick="analyzeBulk()">Correr Análise em Lote (Stream)</button>
+
+    <div id="bulk-result" style="display:none; margin-top:20px;">
+        <h3>Resultados do Fluxo (gRPC Stream):</h3>
+        <table id="bulk-table">
+            <thead>
+                <tr>
+                    <th>Item ID</th>
+                    <th>Ação Recomendada</th>
+                    <th>Quantidade a Encomendar</th>
+                    <th>Explicação</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    async function analyzeSingle() {
+        const resultBox = document.getElementById('single-result');
+        resultBox.style.display = 'block';
+        resultBox.innerText = 'A processar pedido nos microserviços...';
+
+        const data = {
+            item_id: document.getElementById('single-id').value,
+            current_stock: document.getElementById('single-stock').value,
+            reorder_level: document.getElementById('single-level').value
+        };
+
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const resData = await response.json();
+            resultBox.innerText = JSON.stringify(resData, null, 2);
+        } catch (err) {
+            resultBox.innerText = 'Erro ao ligar ao Hub: ' + err.message;
+        }
+    }
+
+    async function analyzeBulk() {
+        const tableBody = document.querySelector('#bulk-table tbody');
+        const bulkResultSection = document.getElementById('bulk-result');
+        tableBody.innerHTML = '<tr><td colspan="4">A chamar fluxo gRPC Stream...</td></tr>';
+        bulkResultSection.style.display = 'block';
+
+        // Captura os valores que estão digitados nos inputs da tabela neste exato momento!
+        const data = {
+            items: [
+                {
+                    item_id: document.getElementById('bulk-id-0').value,
+                    current_stock: parseInt(document.getElementById('bulk-stock-0').value) || 0,
+                    reorder_level: parseInt(document.getElementById('bulk-level-0').value) || 0
+                },
+                {
+                    item_id: document.getElementById('bulk-id-1').value,
+                    current_stock: parseInt(document.getElementById('bulk-stock-1').value) || 0,
+                    reorder_level: parseInt(document.getElementById('bulk-level-1').value) || 0
+                },
+                {
+                    item_id: document.getElementById('bulk-id-2').value,
+                    current_stock: parseInt(document.getElementById('bulk-stock-2').value) || 0,
+                    reorder_level: parseInt(document.getElementById('bulk-level-2').value) || 0
+                }
+            ]
+        };
+
+        try {
+            const response = await fetch('/api/analyze-bulk', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const resData = await response.json();
+            
+            tableBody.innerHTML = '';
+            resData.results.forEach(item => {
+                const row = `<tr>
+                    <td><strong>${item.item_id}</strong></td>
+                    <td style="color: ${item.recommended_action === 'REORDER' ? 'red' : 'green'}"><b>${item.recommended_action}</b></td>
+                    <td>${item.quantity_to_order}</td>
+                    <td>${item.explanation}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
+            });
+        } catch (err) {
+            tableBody.innerHTML = `<tr><td colspan="4" style="color:red">Erro: ${err.message}</td></tr>`;
+        }
+    }
+</script>
+</body>
+</html>
