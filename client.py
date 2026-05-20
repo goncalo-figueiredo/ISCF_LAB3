@@ -36,6 +36,31 @@ def run():
         except grpc.RpcError as e:
             # Captura os erros que programámos no servidor (ex: valores negativos)
             print(f"\nErro gRPC [{e.code()}]: {e.details()}")
+        test_streaming(stub)
+
+
+def test_streaming(stub):
+    print("\n--- A TESTAR SERVER STREAMING ---")
+    
+    # Criar uma lista com 2 pedidos fictícios
+    bulk_request = inventory_pb2.BulkInventoryRequest(
+        requests=[
+            inventory_pb2.InventoryRequest(item_id="PROD-A", current_stock=10, predicted_demand=50, reorder_level=5),
+            inventory_pb2.InventoryRequest(item_id="PROD-B", current_stock=100, predicted_demand=20, reorder_level=10)
+        ]
+    )
+    
+    try:
+        # Chamar o método de streaming
+        response_stream = stub.StreamOptimizeInventory(bulk_request)
+        
+        # Iterar sobre as respostas à medida que elas chegam do servidor
+        for response in response_stream:
+            action_name = inventory_pb2.InventoryAction.Name(response.action)
+            print(f"[{response.item_id}] Ação: {action_name} | Qtd: {response.reorder_quantity} | {response.explanation}")
+            
+    except grpc.RpcError as e:
+        print(f"Erro no streaming: {e.details()}")
 
 if __name__ == '__main__':
     run()

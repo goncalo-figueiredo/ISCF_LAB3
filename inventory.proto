@@ -22,6 +22,12 @@ message InventoryRequest {
     optional int32 supplier_lead_time = 6;
 }
 
+
+    //  Mensagem para receber múltiplos itens de uma vez
+message BulkInventoryRequest {
+    repeated InventoryRequest requests = 1;
+}
+
 // Mensagem de Resposta (Response) enviada pelo Servidor
 message InventoryResponse {
     string item_id = 1;
@@ -34,4 +40,6 @@ message InventoryResponse {
 service InventoryOptimization {
     // Um RPC (Remote Procedure Call) simples
     rpc OptimizeInventory (InventoryRequest) returns (InventoryResponse);
+    // Server Streaming RPC 
+    rpc StreamOptimizeInventory (BulkInventoryRequest) returns (stream InventoryResponse); 
 }

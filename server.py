@@ -40,6 +40,45 @@ class InventoryOptimizationServicer(inventory_pb2_grpc.InventoryOptimizationServ
             explanation=msg
         )
 
+# ... mantém o método OptimizeInventory antigo aqui em cima ...
+
+    def StreamOptimizeInventory(self, request, context):
+        """
+        Implementação do RPC com Server Streaming.
+        Recebe uma lista de pedidos e envia as respostas uma a uma.
+        """
+        print(f"Recebido pedido de streaming para {len(request.requests)} itens.")
+        
+        for single_req in request.requests:
+            # 1. Validação de Dados
+            if single_req.current_stock < 0 or single_req.predicted_demand < 0 or single_req.reorder_level < 0:
+                # No streaming, se houver erro num item, podemos saltar ou enviar uma mensagem de erro na explicação
+                yield inventory_pb2.InventoryResponse(
+                    item_id=single_req.item_id,
+                    reorder_quantity=0,
+                    action=inventory_pb2.InventoryAction.NO_ACTION,
+                    explanation=f"Erro: Valores negativos não permitidos para o item {single_req.item_id}."
+                )
+                continue
+
+            # 2. Lógica de Decisão
+            if single_req.current_stock < (single_req.predicted_demand + single_req.reorder_level):
+                action = inventory_pb2.InventoryAction.REORDER
+                reorder_qty = (single_req.predicted_demand + single_req.reorder_level) - single_req.current_stock
+                msg = f"Stock insuficiente para {single_req.item_id}. Necessário encomendar."
+            else:
+                action = inventory_pb2.InventoryAction.NO_ACTION
+                reorder_qty = 0
+                msg = f"Stock suficiente para {single_req.item_id}."
+
+            # 3. Enviar a resposta em fluxo contínuo (yield)
+            yield inventory_pb2.InventoryResponse(
+                item_id=single_req.item_id,
+                reorder_quantity=reorder_qty,
+                action=action,
+                explanation=msg
+            )
+
 def serve():
     # Cria um servidor gRPC usando uma "pool" de threads
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
