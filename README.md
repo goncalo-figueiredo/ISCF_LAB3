@@ -32,7 +32,8 @@ docker run -p 50051:50051 ms2-python-server
 Abre o projeto Java no teu IDE (IntelliJ IDEA).
 
 - Garante que as dependências do Maven foram descarregadas.
-- Corre o ficheiro principal do servidor para levantar o gRPC na porta **50052**.
+- Corre o ficheiro principal do servidor para levantar o gRPC na porta **50052**
+  (DemandServer.java  "lab3\ms1-demand-java\src\main\java\pt\unl\fct\iscf\ms1\DemandServer.java").
 
 ### 3️⃣ Terminal 3: Hub API REST & Frontend (Node.js)
 
@@ -57,9 +58,3 @@ Com os 3 terminais ativos e sem erros:
 3. **Teste em Lote (Streaming):** Altera os valores na tabela e clica no botão verde "Correr Análise em Lote (Stream)" para ver a tabela gRPC Server Streaming a preencher-se em tempo real.
 
 ---
-
-## 🛠️ Nota de Avaliação: Escolha do Streaming (gRPC)
-
-Implementámos a opção **a) Server Streaming**, onde o cliente envia um pedido com vários itens e o servidor responde um a um em fluxo.
-
-**Justificação para a defesa:** Esta abordagem é a mais adequada para cenários de inventário em lote, pois permite que o Hub envie uma lista pesada de uma só vez e vá processando e renderizando os resultados no ecrã à medida que o Python os calcula, sem bloquear a interface à espera do fim de todo o lote.
