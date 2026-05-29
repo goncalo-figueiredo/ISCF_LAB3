@@ -32,20 +32,30 @@ public class DemandServer {
         public void optimizeInventory(InventoryRequest request, StreamObserver<InventoryResponse> responseObserver) {
             System.out.println("Recebido pedido de previsão para o item: " + request.getItemId());
 
-            int predictedDemand = request.getPredictedDemand();
-            if (predictedDemand == 0) {
-                predictedDemand = 65;
+            int predictedDemand = 65; // Valor base/default caso não haja histórico
+
+            java.util.List<Integer> history = request.getHistoricalDemandList();
+
+            if (history.size() >= 2) {
+                int tamanho = history.size();
+                int ultima = history.get(tamanho - 1);       // Última encomenda
+                int penultima = history.get(tamanho - 2);    // Penúltima encomenda
+
+                // Média Ponderada: Peso 3 para a última, Peso 1 para a penúltima
+                predictedDemand = (int) (((ultima * 3) + (penultima)) / 4.0);
+
+                System.out.println("Cálculo Realizado: Última=" + ultima + ", Penúltima=" + penultima + " -> Previsão Ponderada=" + predictedDemand);
             } else {
-                predictedDemand = (int) (predictedDemand * 1.2);
+                System.out.println(history.size() + " Histórico insuficiente ou vazio. A usar valor padrão: 65");
             }
 
-            // Construir a resposta com os campos exatos que existem no teu .proto
+            // Construir a resposta
             InventoryResponse response = InventoryResponse.newBuilder()
                     .setItemId(request.getItemId())
-                    .setPredictedDemand(predictedDemand) // Já vai funcionar!
-                    .setReorderQuantity(0) // O Java põe a zero, quem calcula isto é o Python
+                    .setPredictedDemand(predictedDemand)
+                    .setReorderQuantity(0)
                     .setAction(InventoryAction.NO_ACTION)
-                    .setExplanation("Previsão calculada em Java (MS1) com base numa tendência de +20%.")
+                    .setExplanation("Previsão calculada em Java (MS1) usando Média Móvel Ponderada das últimas encomendas.")
                     .build();
 
             responseObserver.onNext(response);

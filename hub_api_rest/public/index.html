@@ -42,6 +42,10 @@
         <label>Nível de Reordenação:</label>
         <input type="number" id="single-level" value="25">
     </div>
+    <div class="form-group">
+        <label for="single-history">Histórico de Encomendas (separado por vírgulas):</label>
+        <input type="text" id="single-history" placeholder="Ex: 10,20,15,17" class="form-control" value="10,20,15,17">
+    </div>
     <button onclick="analyzeSingle()">Analisar Item</button>
 
     <div id="single-result" class="result-box"></div>
@@ -102,10 +106,15 @@
         resultBox.style.display = 'block';
         resultBox.innerText = 'A processar pedido nos microserviços...';
 
+        const historyInput = document.getElementById('single-history').value;
+
+        const historyArray = historyInput.split(',').map(num => parseInt(num.trim()) || 0);
+
         const data = {
             item_id: document.getElementById('single-id').value,
             current_stock: document.getElementById('single-stock').value,
-            reorder_level: document.getElementById('single-level').value
+            reorder_level: document.getElementById('single-level').value,
+            historical_demand: historyArray // [NOVO] Adicionado ao payload do pedido
         };
 
         try {
@@ -155,7 +164,7 @@
                 body: JSON.stringify(data)
             });
             const resData = await response.json();
-            
+
             tableBody.innerHTML = '';
             resData.results.forEach(item => {
                 const row = `<tr>

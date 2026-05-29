@@ -8,6 +8,7 @@ enum InventoryAction {
     SCALE_UP = 1;
     SCALE_DOWN = 2;
     REORDER = 3;
+
 }
 
 // Mensagem do Pedido (Request) enviado pelo Cliente
@@ -20,6 +21,8 @@ message InventoryRequest {
     // Campos opcionais introduzidos na Parte 2 do enunciado
     optional int32 safety_stock = 5;
     optional int32 supplier_lead_time = 6;
+
+    repeated int32 historicalDemand = 7;
 }
 
 

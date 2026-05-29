@@ -23,16 +23,19 @@ const inventoryProto = grpc.loadPackageDefinition(packageDefinition).inventory;
 const javaClient = new inventoryProto.InventoryOptimization('localhost:50052', grpc.credentials.createInsecure());
 const pythonClient = new inventoryProto.InventoryOptimization('localhost:50051', grpc.credentials.createInsecure());
 
-// ENDPOINT 1: Simples (O que testámos e já funciona)
+// ENDPOINT 1: Simples (Corrigido para enviar CamelCase ao Java)
 app.post('/api/analyze', (req, res) => {
-    const { item_id, current_stock, reorder_level } = req.body;
+    // Extraímos corretamente o histórico enviado pelo Frontend
+    const { item_id, current_stock, reorder_level, historical_demand } = req.body;
     console.log(`\n[HUB] Pedido simples recebido para o item: ${item_id}`);
 
     const javaRequest = {
         item_id: item_id,
         current_stock: parseInt(current_stock) || 0,
         predicted_demand: 0,
-        reorder_level: parseInt(reorder_level) || 0
+        reorder_level: parseInt(reorder_level) || 0,
+        // Chave em CamelCase para bater a 100% com o teu novo .proto
+        historicalDemand: historical_demand || []
     };
 
     javaClient.OptimizeInventory(javaRequest, (error, javaResponse) => {
@@ -68,7 +71,7 @@ app.post('/api/analyze', (req, res) => {
     });
 });
 
-// ENDPOINT 2: Server Streaming (Novo!)
+// ENDPOINT 2: Server Streaming (Corrigido o bug do histórico dentro do loop)
 app.post('/api/analyze-bulk', async (req, res) => {
     const { items } = req.body; // Espera um array de itens
     console.log(`\n[HUB] Pedido BULK (Streaming) recebido para ${items.length} itens.`);
@@ -82,7 +85,9 @@ app.post('/api/analyze-bulk', async (req, res) => {
                 item_id: item.item_id,
                 current_stock: parseInt(item.current_stock) || 0,
                 predicted_demand: 0,
-                reorder_level: parseInt(item.reorder_level) || 0
+                reorder_level: parseInt(item.reorder_level) || 0,
+                // Extraído de item.historical_demand caso o lote também envie histórico
+                historicalDemand: item.historical_demand || []
             };
 
             // Promessa para garantir que esperamos pela resposta do Java antes de avançar
