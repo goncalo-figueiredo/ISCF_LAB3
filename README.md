@@ -32,7 +32,8 @@ docker run -p 50051:50051 ms2-python-server
 Abre o projeto Java no teu IDE (IntelliJ IDEA).
 
 - Garante que as dependências do Maven foram descarregadas.
-- Corre o ficheiro principal do servidor para levantar o gRPC na porta **50052**.
+- Corre o ficheiro principal do servidor para levantar o gRPC na porta **50052**
+  (DemandServer.java  "lab3\ms1-demand-java\src\main\java\pt\unl\fct\iscf\ms1\DemandServer.java").
 
 ### 3️⃣ Terminal 3: Hub API REST & Frontend (Node.js)
 
